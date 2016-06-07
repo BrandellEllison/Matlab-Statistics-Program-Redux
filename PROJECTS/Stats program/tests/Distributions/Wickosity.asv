@@ -1,0 +1,11 @@
+clear,clc,close all,format bank
+[file,filter_specs,path]=uigetfile({'*.mat';'*.txt';'*.*'},'load file','*.mat')
+a=load(fullfile(file))
+i=1:min(size(a))
+for i
+    subplot(2,7)
+normplot(a(i))
+figure
+%userstat(a(i))
+probplot(a(i))
+end

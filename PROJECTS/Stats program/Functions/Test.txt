@@ -1,0 +1,82 @@
+clear,clc,close all,format bank
+x=double.empty
+[fn,pn,fi]=uigetfile({'*.mat';'*.m';'*.xlsx';'*.txt';'*.*'},'Select list','Normal.txt');
+if isstruct(fn) == 1 ;
+  x=fn.x
+  fnx(:,1) = fn.y; 
+elseif fi == 3; %is an excel file
+        fnx=xlsread(fn,-1);
+else isstruct(fn) == 0;
+    fnx=double(fn); % converts from var to array 
+end
+[row,column] = size(fnx);
+if row < column;
+    fnx = fnx'
+end
+C=userstat(fnx);
+if isempty(x) == 1;
+x=linspace(0,C(9,1),C(10,1));
+end
+PDF = normpdf(x, C(1,1), C(6,1));
+CDF = normcdf(x, C(1,1), C(6,1));
+figure
+subplot(1,2,1)
+plot(x,PDF)
+xlabel('Criteria (Units)')
+ylabel('Probability')
+%axis([min(x),max(x),min(PDF),max(PDF)])
+subplot(1,2,2)
+ylabel('Cumulative Probability (Decimal)')
+plot(x,CDF)
+%axis([min(x),max(x),min(CDF),1])
+figure
+x=linspace(1,10,10)
+y=[randi(10,1,10).*rand(1,10)]
+degree=input('specify degree of polynomial to fit data');
+if isempty(degree) == 1;
+    degree = 1;
+end
+% Normal linear regression
+a2=polyfit(x,y,degree);
+B2=a2(1);
+A2=a2(2);
+Kfit2= polyval(a2,x);
+e2=(Kfit2-y);
+MSE2=mean(e2.^2);
+subplot(1,2,1)
+plot(x,y,'or',x,Kfit2,'k')
+fprintf('The MSE of each regression is listed respectively:\n')
+disp(MSE2.')
+% log-transformed linear regression
+ly=log(y);
+a=polyfit(x,ly,degree);
+B=a(1);
+A=exp(a(2));
+Kfit=A*exp(B*x);
+e=(Kfit-y);
+MSE=mean(e.^2);
+subplot(1,2,2)
+plot(log(x),ly,'or',x,Kfit,'k')
+fprintf('The MSE of each log_tf_norm regression is listed respectively:\n')
+disp(MSE.')
+% Comparison
+comparison= MSE2 > MSE
+fprintf('Order\tMSE\n');
+%
+Meanerrsqr=[]
+attempt=[]
+i=0;
+while comparison == 1
+i=i+1
+attempt(i)=i
+a2=polyfit(x,y,i);
+B2=a2(1);
+A2=a2(2);
+Kfit2 = polyval(a2,x);
+e2 = (Kfit2-y);
+MSE2 = mean(e2.^2);
+comparison = MSE2 > MSE;
+Meanerrsqr(1,i)=MSE2';
+end
+table(attempt',Meanerrsqr','VariableNames',{'Order','MSE'})
+fprintf('Polynomial regression of order %1.0f has a better \n MSE than log transformed linear regression.\n\n',i)

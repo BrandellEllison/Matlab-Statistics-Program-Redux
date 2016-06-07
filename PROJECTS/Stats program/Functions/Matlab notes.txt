@@ -1,0 +1,1248 @@
+clear 
+clc 
+close all 
+format compact 
+format bank
+%% Matlab Notes
+%  Reorganize by style
+%% Style guide
+   
+%% Inputs and output
+Procedure for creating a functioning program in matlab.
+1. How to properly open a file
+    1.1 how to load a file
+    1.2 File conversion
+2. How to manipulate data within a file
+    2.1 Adding headers to a file (for easy indexing) 
+    2.2 Elimination of noisy input
+        sort(filecontents)
+3. How to save edits made to a file
+    3.1 Overwrite
+    3.2 Create New File
+4. how to create a ui menu
+    4.1 Bare minimum prompted popup:
+        a = menu('title','Option 1','...','Option N')
+    4.2 A little more elaborate window (File Preview to right)
+    4.3 Custom made menus
+    see 'help guide' or 'guide'
+5. How to continuously loop a program 
+6. Functional compartmentalization
+    6.1 Wire inputs and outputs to function handles 
+    6.2 Testing functions for validity 
+9. Defensive programming measures
+    9.1 assume the user is an idiot
+10. Conclusion
+    10.1 Close program using conditionals
+11. Create a directory for it to contain critical folders
+   11.1 wire functions to draw directly from those sets of files
+   11.2 File management    
+      A: throw errors if user tries to save a file outside of domain.
+      B: ask user to pull directory from recent memory or ui navigation.
+       [Fname,Pname,Find] = uigetfile({'*.mat';'*.m';'*.txt';'*.*'},'Select Desired File','file.txt')%,'MultiSelect',selectmode) As necessary
+% fopen()
+%{
+ fopen  Open file.
+    FID = fopen(FILENAME) opens the file FILENAME for read access.
+    FILENAME is a string containing the name of the file to be opened.  
+    (On PC systems, fopen opens files for binary read access.)
+ 
+    FILENAME can be a MATLABPATH relative partial pathname.  If the
+    file is not found in the current working directory, fopen searches for 
+    it on the MATLAB search path.  On UNIX systems, FILENAME may also start
+    with a "~/" or a "~username/", which fopen expands to the current
+    user's home directory or the specified user's home directory,
+    respectively.
+ 
+    FID is a scalar MATLAB integer valued double, called a file identifier. 
+    You use FID as the first argument to other file input/output
+    routines, such as FREAD and FCLOSE. If fopen cannot open the file, it 
+    returns -1.
+ 
+    FID = fopen(FILENAME,PERMISSION) opens the file FILENAME in the
+    mode specified by PERMISSION:
+    
+        'r'     open file for reading
+        'w'     open file for writing; discard existing contents
+        'a'     open or create file for writing; append data to end of file
+        'r+'    open (do not create) file for reading and writing
+        'w+'    open or create file for reading and writing; discard 
+                existing contents
+        'a+'    open or create file for reading and writing; append data 
+                to end of file
+        'W'     open file for writing without automatic flushing
+        'A'     open file for appending without automatic flushing
+    
+    FILENAME can be a MATLABPATH relative partial pathname only if the file
+    is opened for reading.
+ 
+    You can open files in binary mode (the default) or in text mode.
+    In binary mode, no characters get singled out for special treatment.
+    In text mode on the PC, the carriage return character preceding
+    a newline character is deleted on input and added before the newline
+    character on output.  To open a file in text mode, append 't' to the
+    permission string, for example 'rt' and 'w+t'.  (On Unix, text and
+    binary mode are the same, so this has no effect.  On PC systems
+    this is critical.)
+ 
+    If the file is opened in update mode ('+'), you must use an FSEEK or 
+    FREWIND between an input command like FREAD, FSCANF, FGETS, or FGETL 
+    and an output command like FWRITE or FPRINTF.  You must also use an 
+    FSEEK or FREWIND between an output command and an input command.
+ 
+    Two file identifiers are automatically available and need not be
+    opened.  They are FID=1 (standard output) and FID=2 (standard error).
+    
+    [FID, MESSAGE] = fopen(FILENAME,...) returns a system dependent error 
+    message if the open is not successful.
+ 
+    [FID, MESSAGE] = fopen(FILENAME,PERMISSION,MACHINEFORMAT) opens the
+    specified file with the specified PERMISSION and treats data read
+    using FREAD or data written using FWRITE as having a format given
+    by MACHINEFORMAT. MACHINEFORMAT is one of the following strings:
+ 
+    'native'      or 'n' - local machine format - the default
+    'ieee-le'     or 'l' - IEEE floating point with little-endian
+                           byte ordering
+    'ieee-be'     or 'b' - IEEE floating point with big-endian
+                           byte ordering
+    'ieee-le.l64' or 'a' - IEEE floating point with little-endian
+                           byte ordering and 64 bit long data type
+    'ieee-be.l64' or 's' - IEEE floating point with big-endian byte
+                           ordering and 64 bit long data type.
+    
+    [FID, MESSAGE] = fopen(FILENAME,PERMISSION,MACHINEFORMAT,ENCODING) 
+    opens the specified file using the specified PERMISSION and 
+    MACHINEFORMAT. ENCODING is a string that specifies the character 
+    encoding scheme associated with the file. It must be the empty 
+    string ('') or a name or alias for an encoding scheme. Some examples 
+    are 'UTF-8', 'latin1', 'US-ASCII', and 'Shift_JIS'. For common names 
+    and aliases, see the Web site 
+    http://www.iana.org/assignments/character-sets. If ENCODING is 
+    unspecified or is the empty string (''), MATLAB's default encoding 
+    scheme is used.
+ 
+    [FILENAME,PERMISSION,MACHINEFORMAT,ENCODING] = fopen(FID) returns the 
+    filename, permission, machine format, and character encoding values
+    used by MATLAB when it opened the file associated with identifier FID.
+    MATLAB does not determine these output values by reading information 
+    from the opened file. For any of these parameters that were not 
+    specified when the file was opened, MATLAB returns its default value. 
+    The ENCODING string is a standard character encoding scheme name that 
+    may not be the same as the ENCODING argument used in the call to fopen 
+    that opened the file. An invalid FID returns empty strings for all 
+    output arguments.
+ 
+    FIDS = fopen('all') returns a row vector containing the file 
+    identifiers for all the files currently opened by the user 
+    (but not 1 or 2).
+    
+    The 'W' and 'A' permissions do not automatically perform a flush 
+    of the current output buffer after output operations.
+    
+    See also fclose, ferror, fgetl, fgets, fprintf, fread, fscanf, fseek, 
+             ftell, fwrite.
+
+    Reference page for fopen
+    Other functions named fopen
+%}
+fclose(var)
+
+%{
+[Fname,Pname,Find] = uigetfile({'*.mat';'*.m';'*.txt';'*.*'},'Select Desired File','file.txt')%,'MultiSelect',selectmode) As necessary
+filename = uigetfile displays a modal dialog box that lists files in the current folder and enables you to select or enter the name of a file. If the file name is valid (and the file exists), uigetfile returns the file name as a string when you click Open. If you click Cancel (or the window's close box), uigetfile returns 0.
+
+[FileName,PathName,FilterIndex] = uigetfile(FilterSpec) displays only those files with extensions that match FilterSpec. On some platforms uigetfile also displays in gray the files that do not match FilterSpec. FilterSpec can be a string or a cell array of strings, and can include the * wildcard.
+
+If FilterSpec is a file name, that file name displays, selected in the File name field. The extension of the file is the default filter.
+FilterSpec can include a path. That path can contain '.','..', \, '/', or '~'. For example, '../*.m' lists all code files in the folder above the current folder.
+If FilterSpec is a folder name, uigetfile displays the contents of that folder, the File name field is empty, and no filter applies. To specify a folder name, make the last character of FilterSpec either '\' or '/'.
+If FilterSpec is a cell array of strings, it can include two columns. The first column contains a list of file extensions. The optional second column contains a corresponding list of descriptions. These descriptions replace standard descriptions in the Files of type field. A description cannot be an empty string. The second and third examples illustrate use of a cell array as FilterSpec.
+If FilterSpec is missing or empty, uigetfile uses the default list of file types (for example, all MATLAB® files).
+
+After you click Open and if the file name exists,uigetfile returns the name of the file in FileName and its path in PathName. If you click Cancel or the window's close box, the function sets FileName and PathName to 0.
+
+FilterIndex is the index of the filter selected in the dialog box. Indexing
+starts at 1. If you click Cancel or the window's close box, the function 
+sets FilterIndex to 0.
+
+[FileName,PathName,FilterIndex] = uigetfile(FilterSpec,DialogTitle)displays
+ a dialog box that has the title DialogTitle. To use the default file types
+ and specify a dialog title, enter
+
+uigetfile('',DialogTitle)
+[FileName,PathName,FilterIndex] = uigetfile(FilterSpec,DialogTitle,
+DefaultName)displays a dialog box in which the file name specified by 
+DefaultName appears in the File name field. DefaultName can also be a path 
+or a path/filename. In this case, uigetfile opens the dialog box in the 
+folder specified by the path. You can use '.','..', \, or '/' in the 
+DefaultName argument. To specify a folder name, make the last character of 
+DefaultName either '\' or '/'. If the specified path does not exist, 
+uigetfile opens the dialog box in the current folder.
+
+[FileName,PathName,FilterIndex] = uigetfile(...,'MultiSelect',
+selectmode)opens the dialog box in multiselect mode. Valid values for selectmode are 'on' and 'off' (the default, which allows single selection only). If 'MultiSelect' is 'on' and you select more than one file in the dialog box, then FileName is a cell array of strings. Each array element contains the name of a selected file. File names in the cell array are sorted in the order your platform uses. If you select multiple files, they must be in the same folder, otherwise MATLAB displays a warning dialog box. Be aware that Microsoft® Windows® libraries can span multiple folders. PathName is a string identifying the folder containing the files.
+
+If you include either of the wildcard characters, '*' or '?', in a file name, uigetfile does not respond to clicking Open. The dialog box remains open until you cancel it or remove the wildcard characters. This restriction applies to all platforms, even to file systems that permit these characters in file names.
+%}
+%% The matfile Command
+m = matfile(filename) creates a MAT-file object, m, connected to the MAT-file named filename. The object allows you to access and change variables directly in a MAT-file, without having to load the variables into memory.
+The partial loading and saving that the matfile function provides requires less memory than the load and save commands, which always operate on entire variables.
+% May be useful for saving
+% m = matfile(filename,'Writable',isWritable) enables or disables write access to the file.
+%% Formal methods for saving to files
+% Standard format for publishing
+
+% Publishing matlab output via html
+
+% html to doc conversion
+%% Mathematical equations in matlab
+%{
+%% How to solve them WITHOUT SYMBOLICS:
+%  Predefine everything and define in terms of the unknown variable
+
+    N = [5:1:10]
+    r = .0435
+    f = 1E6
+    p = (f.*(r./12))./(((1+r./12).^(12.*N))-1)
+
+% WITH SYMBOLICS: 
+% unknowns are to be addressed with 'syms' 
+% Solve is used to solve for missing variables only,var_name=solve(function_handle,var)
+
+    syms p 
+    q = 1020.*sqrt(p).*(1-0.01.*sqrt(p));
+    p=[10:10:200]'
+    q=double(subs(q,p))
+
+%% Common mistakes: 
+% Error #1: Redundancy
+
+    syms p 
+    N = 5:1:10
+    r = .0435
+    f = 1E6
+    eqn = p == (f.*(r./12))./(((1+r./12).^(12.*N))-1)
+  >>p=solve(eqn,p)<<
+
+% The final command here is excessive. the equation is already
+% solved by the time you define everything in line 4.
+%
+% Error #2: 'Double assingment' of variables or outputs.
+% Usually stems from a fundamental misunderstanding of
+% the differences of the equality and the assignment 
+% operator.
+%
+% Standardization of practice will eliminate this issue.
+%
+% Either stick with the assignment handle & redefine 
+% or define under an assignment handle (w/o assignment).
+%
+% Method 1
+
+    syms p 
+  >>q = 1020.*sqrt(p).*(1-0.01.*sqrt(p));<<
+    p=[10:10:200]'
+    q=double(subs(q,p))
+
+% Bad Method 
+
+    eqn = p == (f.*(r./12))./(((1+r./12).^(12.*N))-1)
+
+% Why it's bad:
+
+eqn =
+[  5,  p == 8218788748043181/549755813888]
+[  6,  p == 3348056783039793/274877906944]
+[  7,  p == 5610534751453801/549755813888]
+[  8,    p == 599767098770285/68719476736]
+[  9, p == 8335709846698985/1099511627776]
+[ 10,  p == 3665049775089653/549755813888]
+
+% Note the impossibility of getting rid of p.
+
+% Error 3: Misuse of the solve syntax.
+% Flawed memory recall of code is the primary 
+% reason why coding takes so long. 
+%
+% The following are the only acceptable syntax for the solve function
+%
+%
+%
+%S = solve(eqn,var,Name,Value)
+%Y = solve(eqns,vars")
+%Y = solve(eqns,vars,Name,Value)
+%[y1,...,yN] = solve(eqns,vars)
+%[y1,...,yN] = solve(eqns,vars,Name,Value)
+%[solx, params, conds] = solve(eqn, x, 'ReturnConditions', true)
+%
+% If solve returns an empty object, then no solutions exist. 
+% If solve returns an empty object with a warning, solutions might 
+% exist but solve did not find any solutions.
+
+% .%c syntax is only acceptable under the following circumstances
+%
+syms u v
+S = solve([2*u + v == 0, u - v == 1], [u, v])
+    |output:
+    |   u: 1x1 sym
+    |   v: see u
+    |
+    |
+S.u
+S.v
+%
+%}
+%% CHAPTER 3:
+%% Linear Algebra in General 
+%{
+% Cellular operations preceded by '.' operator.
+%
+% Addition:
+syms A B C
+A=[ones([1,6]);randi(55,[1,6]);ones([1,6]);randi(55,[1,6]);ones([1,6]);randi(55,[1,6])]
+B=[linspace(2,10,6);linspace(1,2,6);linspace(-100,100,6);randi(42,[1,6]);randi(42,[1,6]);randi(42,[1,6])]
+C=A+B
+
+% Vector Multiplication:
+syms A B C
+A=rand([2,4])
+B=rand([4,5])
+C=A*B
+
+% Multiplication is not commutative
+% definition depends on the dot product of the row{A} and column{B} being
+% concatenated
+% Scalar  Multiplication:
+syms A l D
+A=rand([2,4])
+l=randi(10,1)
+D=A*l
+
+%   Systems of Equations:
+%   |A11x+A12y+A13z|=|B1|
+%   |A21x+A22y+A23z|=|B2|
+%   |A31x+A32y+A33z|=|B3|
+%   TL;DR:    A*[x;y;z]=B
+%
+%
+
+syms x y z
+ECS=[x;y;z]
+alphaAA=randi(10,[3,3])*ECS==[randi(20,[3,1])]
+[A,B]=equationsToMatrix([alphaAA(1,:),alphaAA(2,:),alphaAA(3,:)],[ECS])
+x=linsolve(A,B)
+
+
+% Subtraction
+% Cellwise, must be same size or appended to be the same size.
+% Division
+syms idn A B C D E F G
+idn=eye(3)
+A=rand([4,4]).*100
+%matrix must be square to be invertible
+invA=A^-1
+B=A*invA
+C=rand([4,4])
+D=C*invA
+fprintf('D(1,1)is equal to C(1,1) times A^-1(:,1).')
+D(1,1)
+C(1,:)*invA(:,1)
+
+%% Other Arithmetic
+% Manipulation
+%   Flipping Arrays:
+%       flip(Array,[dim])
+%
+%
+%}
+%{
+Integration and derivation:
+Presumed conditions: 
+syms x t
+Relevant Functions:
+diff(eqn,x)
+int("eqn","w/ respect to..."[var],start,end)
+%}
+%{
+syms x t
+y=;
+x1=linspace(-100,100,1000);
+t1=linspace(0,1);
+y1=subs(y,x,x1);
+
+slope=subs(diff(y,x),x,x1);
+area=subs(int(x./(x.^2+4),x,0,5),x,x1);
+plot(x1,y1,'--r','linewidth',3)
+hold on
+area(y1')
+hold on
+plot(x1,slope,':b')
+hold on
+plot(x1,area,'--G')
+grid on
+axis([-20 20 -10 10])
+xlabel('x')
+ylabel('y')
+title('y=x/(x^2+4)')
+%}
+%{
+
+% Matlab Notes
+%% Mathematical equations in matlab
+% Single and multivariate variable equations 
+%% How to solve them WITHOUT SYMBOLICS:
+% Predefine everything and define in terms of the unknown variable
+    N = [5:1:10]
+    r = .0435
+    f = 1E6
+    p = (f.*(r./12))./(((1+r./12).^(12.*N))-1)
+
+% WITH SYMBOLICS: 
+% unknowns are to be addressed with 'syms' 
+% Solve is used to solve for missing variables only,var_name=solve(function_handle,var)
+
+    syms p 
+    q = 1020.*sqrt(p).*(1-0.01.*sqrt(p));
+    p=[10:10:200]'
+    q=double(subs(q,p))
+
+%% Common mistakes: 
+% Error #1: Redundancy
+
+    syms p 
+    N = 5:1:10
+    r = .0435
+    f = 1E6
+    eqn = p == (f.*(r./12))./(((1+r./12).^(12.*N))-1)
+    >>p=solve(eqn,p)<<
+
+% The final command here is excessive. the equation is already
+% solved by the time you define everything in line 4.
+%
+% Error #2: 'Double assingment' of variables or outputs.
+% Usually stems from a fundamental misunderstanding of
+% the differences of the equality and the assignment 
+% operator.
+%
+% Standardization of practice will eliminate this issue.
+%
+% Either stick with the assignment handle & redefine 
+% or define under an assignment handle (w/o assignment).
+%
+% Method 1
+
+    syms p 
+  >>q = 1020.*sqrt(p).*(1-0.01.*sqrt(p));<<
+    p=[10:10:200]'
+    q=double(subs(q,p))
+
+% Bad Method 
+
+    eqn = p == (f.*(r./12))./(((1+r./12).^(12.*N))-1)
+
+% Why it's bad:
+
+eqn =
+[  5,  p == 8218788748043181/549755813888]
+[  6,  p == 3348056783039793/274877906944]
+[  7,  p == 5610534751453801/549755813888]
+[  8,    p == 599767098770285/68719476736]
+[  9, p == 8335709846698985/1099511627776]
+[ 10,  p == 3665049775089653/549755813888]
+
+% Note the impossibility of getting rid of p.
+
+% Error 3: Misuse of the solve syntax.
+% Flawed memory recall of code is the primary 
+% reason why coding takes so long. 
+%
+% The following are the only acceptable syntax for the solve function
+%
+%
+%
+%S = solve(eqn,var,Name,Value)
+%Y = solve(eqns,vars)
+%Y = solve(eqns,vars,Name,Value)
+%[y1,...,yN] = solve(eqns,vars)
+%[y1,...,yN] = solve(eqns,vars,Name,Value)
+%[solx, params, conds] = solve(eqn, x, 'ReturnConditions', true)
+%
+% If solve returns an empty object, then no solutions exist. 
+% If solve returns an empty object with a warning, solutions might 
+% exist but solve did not find any solutions.
+
+% .%c syntax is only acceptable under the following circumstances
+%
+syms u v
+S = solve([2*u + v == 0, u - v == 1], [u, v])
+    |output:
+    |   u: 1x1 sym
+    |   v: 1x1 sym
+    |
+    |
+S.u
+S.v
+%
+%}
+%% CHAPTER 3:
+%% Linear Algebra in General 
+%
+% Cellular operations preceded by '.' operator.
+%
+% Addition:
+syms A B C
+A=[ones([1,6]);randi(55,[1,6]);ones([1,6]);randi(55,[1,6]);ones([1,6]);randi(55,[1,6])]
+B=[linspace(2,10,6);linspace(1,2,6);linspace(-100,100,6);randi(42,[1,6]);randi(42,[1,6]);randi(42,[1,6])]
+C=A+B
+
+% Vector Multiplication:
+syms A B C
+A=rand([2,4])
+B=rand([4,5])
+C=A*B
+
+% Multiplication is not commutative
+% definition depends on the dot product of the row{A} and column{B} being
+% concatenated
+% Scalar  Multiplication:
+syms A l D
+A=rand([2,4])
+l=randi(10,1)
+D=A*l
+
+% Systems of Equations:
+%   |A11x+A12y+A13z|=|B1|
+%   |A21x+A22y+A23z|=|B2|
+%   |A31x+A32y+A33z|=|B3|
+%   TL;DR:    A*[x;y;z]=B
+%{
+EQN TO MATRIX
+eqn=-(t*c/2).*matl*Vars==y;
+[A,B]=equationsToMatrix([eqn(1,:),eqn(2,:),eqn(3,:),eqn(4,:),eqn(5,:)],[Vars]);
+double(linsolve(A,B))
+%}
+
+syms x y z
+ECS=[x;y;z]
+alphaAA=randi(10,[3,3])*ECS==[randi(20,[3,1])]
+[A,B]=equationsToMatrix([alphaAA(1,:),alphaAA(2,:),alphaAA(3,:)],[ECS])
+x=linsolve(A,B)
+
+
+% Subtraction
+% Cellwise, must be same size or appended to be the same size.
+% Division
+
+syms idn A B C D E F G
+idn=eye(3)
+A=rand([4,4]).*100
+
+invA=A^-1
+%matrix must be square to be invertible
+
+B=A*invA
+C=rand([4,4])
+D=C*invA
+fprintf('D(1,1)is equal to C(1,1) times A^-1(:,1).')
+D(1,1)
+C(1,:)*invA(:,1)
+
+%% Other Arithmetic
+% Manipulation
+%   Flipping Arrays:
+%       flip(Array,[dim])
+%       Rotates the dimensions in 
+%
+%}
+%%
+%% Attempt 1: Corrected attempt at using linsolve.
+% Reason for failure: TBD, Linsolve does not work for equation format. 
+%
+%
+syms x y z
+A=[1,1,1;0.0,0.02,0.035;0.025,0.021,0.019]%Coeff Mat;
+B=[100;x;y]%Var Mat;
+C=[1*z;0.016.*z;0.22.*z]%Soln Mat;
+System1=A*B==C
+%New code
+[I,O]=equationsToMatrix([System1(1,1),System1(2,1),System1(3,1)],[x,y,z]);
+Solns=double(linsolve(I,O))
+%
+%{
+linsolve(System1(1,:),System1(2,:),System1(3,:),[x,y,z])
+%}
+%
+%% Attempt 2: Defining matrices via equilibrium ('eqns-solns=0' format)
+%{
+A=[1,1,1,-1;0.0,0.02,0.035,-0.016;0.025,0.021,0.019,-0.22]
+B=[100;x;y;z]%Var Mat; may be unnecessary
+C=[0;0;0]
+linsolve(A,C)
+% FAILED: WHILE IT GENERATES AN OUTPUT, WILL NOT RETURN CORRECT ANSWER.
+%}
+
+%% ATTEMPT 3:BY THE BOOK
+% See attempt 1
+%% Alternative ways of defining systems in matlab: 
+% 1.) defining eqns with the known var substituted with the outputs; 
+% all unknowns+solns == known vars
+%
+%Below is a list of eqns before and after being processed by eqnToMat:
+%{
+System1 =
+                             x + y + 100 == z
+                x/50 + (7*y)/200 == (2*z)/125
+ (21*x)/1000 + (19*y)/1000 + 5/2 == (11*z)/50
+%}
+% for [I,O]=equationsToMatrix([System1(1,1),System1(2,1),System1(3,1)],[x,y,z])...
+%{
+I =
+[       1,       1,     -1]
+[    1/50,   7/200, -2/125]
+[ 21/1000, 19/1000, -11/50]
+O =
+ -100
+    0
+ -5/2
+%}
+
+%% Plotting ANYTHING in matlab
+%
+% THE DIFFERENCE BETWEEN "ezplot", "plot", "fplot", "mesh", "grid", "surf",
+%
+% ezplot DETAILS:
+% form: 
+
+% fplot DETAILS:
+% form: fplot('function','limits','line specs')
+%
+%
+%
+% plot Details
+% form: plot(x,y,'line spec','prop names','prop values')
+% 'line specs': 
+% LINE TYPE 'linestyle'
+% -  solid
+% -- dashed
+% :  dotted
+% -. dash-dot
+% 
+% LINE COLOR 'color'
+% +  plus
+% o  Circle
+% *  asterisk
+% .  point
+% x  cross
+%[^|v|<|>] triange in indicated direction
+% s square
+% d diamond
+% p pentastar
+% h hexastar
+%
+% 'Prop names':
+% linewitdth 
+% markersize
+% markeredgecolor
+% mrkerfacecolor
+% 'prop values':
+% LW & MS := units in points.
+% Color:= color specifiers.
+% Example: plot(x,y1,'g',x,y2,'b--o',x,y3,'c*')
+% 
+% plot(x,y,u,v,t,h) => plot({x,y},{u,v},{t,h}) 
+% text([plot],'INSERT TEXT HERE','PROP NAME','PROP VALUE')
+%
+
+%}
+%{
+Error using plot
+A numeric or double convertible
+argument is expected
+Error in A16_01_12_Math_Homework (line
+659)
+plot(x1,y) 
+%}
+%% MATLAB NOTES
+% Much Ado About Plotting
+%
+% LINE SPECIFICATIONS
+% you have a copy of 
+% Subplotting:
+% syntax subplot(m,n,p)
+% standardized: subplot(m,n,p,ax)
+% m:= row
+% n:= columns
+% p:= position; must be 
+%     a scalar integer value
+% 3D Plotting
+% prerequisites:
+% meshgrid to create x and y matrices 
+% calculate Z values using x and y
+% 3d plot as mesh(x,y,z)
+[X,Y]=meshgrid(x,y) 
+% x vector determines the number of rows in the matrices produced, y
+% determines the 2nd dimension of the plot
+
+%% Important peripheral functions to use:
+%% Input:
+% xlsread(file,page, row,column)
+% xlabel()
+% ylabel()
+% legend()
+%   long form syntax: legend(‘y1’,’y2’,’Location’,’southeast’)
+%   Properties: 
+%               Textcolor: 
+%               uses the same strings as the color functions use.
+%               Location:
+%               Cardinal direction prefix in lowercase strings
+%               cardinal direction suffix pairs in strings,
+%               root of 'out' to specify location of grid
+%               Orientation:
+%               'horizontal'
+%               'vertical'
+% subplot()
+% Long Form : subplot(row,column,position)
+% to be defined BEFORE a plot.
+% meshgrid()
+% mesh()
+% grid()
+% load() 
+
+% Analytical tools for plotting: 
+% 
+%
+% 
+%% Data manipulation:
+%% Plotting & Formatting: 
+%}
+%% Plotting Protocols
+% When plotting functions:
+%
+%
+%
+%
+
+% When plotting symbolics:
+%
+%
+%
+
+%
+%
+%
+
+% When Plotting parametric equations:
+% define as separate expressions bound to unique variables,
+% plot according to 
+%
+%
+%
+%
+
+%}
+
+%% xlsread()notes
+% syntax: xlsread('filename',sheet,row,column)
+%
+%
+
+%
+%
+%
+%
+
+%
+%
+%
+%
+
+%% Actual Programming Protocols
+x = [0:.5:180]
+y = cot(x)
+plot(x,y) 
+
+%% Strings
+% cellstr('input') converts strings from string arrays to word cell to 
+
+%% Matlab 8 Linear regression 
+% assuming that the variable y is a linear function of the variable
+% x + [random error (epsilon)],
+%{
+    y=b(1)x+b(0)+(eps)
+    Generalized linear regression formula:
+    y(i)=b(1)x(i)+b(0)+(eps)(i)  
+b(1):= slope
+b(0):= intercept
+    The function in which you deal with this equation: 
+*   p = polyfit(x,y,1)
+
+    polyfit Fit polynomial to data.
+ P = polyfit(X,Y,N) finds the
+coefficients of a polynomial P(X) of
+degree N that fits the data Y best in a
+least-squares sense. P is a row vector
+of length N+1 containing the polynomial
+coefficients in descending powers,
+P(1)*X^N + P(2)*X^(N-1) +...+ P(N)*X +
+P(N+1).
+
+N DENOTES ORDER OF REGRESSION PLOT.
+
+%}
+
+%{
+polyfit Fit polynomial to data.
+    P = polyfit(X,Y,N) finds the coefficients of a polynomial P(X) of
+    degree N that fits the data Y best in a least-squares sense. P is a
+    row vector of length N+1 containing the polynomial coefficients in
+    descending powers, P(1)*X^N + P(2)*X^(N-1) +...+ P(N)*X + P(N+1).
+ 
+    [P,S] = polyfit(X,Y,N) returns the polynomial coefficients P and a
+    structure S for use with POLYVAL to obtain error estimates for
+    predictions.  S contains fields for the triangular factor (R) from a QR
+    decomposition of the Vandermonde matrix of X, the degrees of freedom
+    (df), and the norm of the residuals (normr).  If the data Y are random,
+    an estimate of the covariance matrix of P is (Rinv*Rinv')*normr^2/df,
+    where Rinv is the inverse of R.
+ 
+    [P,S,MU] = polyfit(X,Y,N) finds the coefficients of a polynomial in
+    XHAT = (X-MU(1))/MU(2) where MU(1) = MEAN(X) and MU(2) = STD(X). This
+    centering and scaling transformation improves the numerical properties
+    of both the polynomial and the fitting algorithm.
+ 
+    Warning messages result if N is >= length(X), if X has repeated, or
+    nearly repeated, points, or if X might need centering and scaling.
+ 
+    Class support for inputs X,Y:
+       float: double, single
+ 
+    See also poly, polyval, roots, lscov.
+
+    Reference page for polyfit
+    Other functions named polyfit
+%}
+%{
+polyval Evaluate polynomial.
+    Y = polyval(P,X) returns the value of a polynomial P evaluated at X. P
+    is a vector of length N+1 whose elements are the coefficients of the
+    polynomial in descending powers.
+ 
+        Y = P(1)*X^N + P(2)*X^(N-1) + ... + P(N)*X + P(N+1)
+ 
+    If X is a matrix or vector, the polynomial is evaluated at all
+    points in X.  See POLYVALM for evaluation in a matrix sense.
+ 
+    [Y,DELTA] = polyval(P,X,S) uses the optional output structure S created
+    by POLYFIT to generate prediction error estimates DELTA.  DELTA is an
+    estimate of the standard deviation of the error in predicting a future
+    observation at X by P(X).
+ 
+    If the coefficients in P are least squares estimates computed by
+    POLYFIT, and the errors in the data input to POLYFIT are independent,
+    normal, with constant variance, then Y +/- DELTA will contain at least
+    50% of future observations at X.
+ 
+    Y = polyval(P,X,[],MU) or [Y,DELTA] = polyval(P,X,S,MU) uses XHAT =
+    (X-MU(1))/MU(2) in place of X. The centering and scaling parameters MU
+    are optional output computed by POLYFIT.
+ 
+    Example:
+       Evaluate the polynomial p(x) = 3x^2+2x+1 at x = 5,7, and 9:
+ 
+       p = [3 2 1];
+       polyval(p,[5 7 9])%
+ 
+    Class support for inputs P,X,S,MU:
+       float: double, single
+ 
+    See also polyfit, polyvalm.
+
+    Reference page for polyval
+    Other functions named polyval
+%}
+%% Plotting a line of best fit:
+x=[1:5:100];
+y=[1:10:200];
+plot(x,y,'g')
+a=polyfit(x,y,1);
+b=polyval(a,x);
+hold on 
+plot(x,b,'--k')
+%% Tackling Tables 
+%}
+% Defining column and row headers 
+%{
+syms W L H x
+T = W.*L.*(H.^2+x.^2).^(1/2).*(H.^(-1).*x.^(-1));
+A={cellstr('Attempt 1');cellstr('Attempt 2');cellstr('Attempt 3');...
+    cellstr('Attempt 4');cellstr('Attempt 5');cellstr('Attempt 6')}
+B=cellstr('Tension forces')
+table(T,'rownames',A','variablenames',B)
+%}
+% the above usage will produce the following output.
+%{
+Error using setRowNames (line 32)
+The RowNames property must be a cell array,
+with each element containing one nonempty
+string.
+Error in table (line 289)
+                    t =
+                    setRowNames(t,rownamesArg);
+                    Error in
+                    A16_01_12_Math_Homework
+                    (line 325)
+table(T,'rownames',A','variablenames',B) 
+%}
+%{
+clear,clc,close all,format compact, format shortEng
+CB_name=input('Enter planet names as a column struct of strings of length n.');
+m1=input('Input mass of object in SI units as a column vector. [kg]');
+% FORMAT VAR: \c = [SI[dim],AES[dim],USCS[dim]]
+mCB=input('Input mass of celestial bodies in SI units.');
+r=input('Enter distance between center of masses in SI units. [m]'); %m
+G=6.674E-11; % N*m^2*kg^-2
+SI_N=G.*((m1.*mCB')./(abs(r').^2));
+varN={'SI[N]','AES[lbf]','USCS[slug*ft/s^2]'};
+AES_LBF=SI_N(:,1)*0.22481;
+USCS_slug_fps2=SI_N(:,1)*6.9816E-3;
+table(SI_N,AES_LBF,USCS_slug_fps2,'rownames',CB_name)
+
+% Disassemble the entire goddamn thing and build it up from scratch. 
+% Save all conversions until the end.
+%}
+%% output: 
+%{
+Enter planet names as a column struct of strings of length n.{'a';'b';'c';'d';'e'}
+Input mass of object in SI units as a column vector. [kg]25
+Input mass of celestial bodies in SI units.[1,2,3,4,5]
+Enter distance between center of masses in SI units. [m][1,2,3,4,5]
+ans = 
+            SI_N        AES_LBF      USCS_slug_fps2
+         __________    __________    ______________
+    a    1.6685e-09     3.751e-10    1.1649e-11    
+    b    8.3425e-10    1.8755e-10    5.8244e-12    
+    c    5.5617e-10    1.2503e-10    3.8829e-12    
+    d    4.1712e-10    9.3774e-11    2.9122e-12    
+    e     3.337e-10    7.5019e-11    2.3298e-12    
+%}
+%{
+% If formal tables are not needed, use the following format:
+% given the following:
+     N=1:1:n
+     P= 'some equation dependent upon N'
+% Use:     
+     disp('Units of N','Units of P') 
+     solution= [N',P']
+%}
+%{
+probplot Probability plot
+    probplot(Y) produces a normal probability plot comparing the distribution
+    of the data Y to the normal distribution.  Y can be a single vector, or
+    a matrix with a separate sample in each column. The plot includes a
+    reference line that passes through the lower and upper quartiles of
+    Y, and that is useful for judging whether the data follow a normal
+    distribution. probplot uses midpoint probability plotting positions.
+ 
+    probplot('DISTNAME',Y) creates a probability plot for the specified
+    distribution.  DISTNAME is a character string chosen from the following
+    list of distributions:
+ 
+        'exponential'                      Exponential
+        'extreme value' or 'ev'            Extreme value
+        'lognormal'                        Lognormal
+        'normal'                           Normal
+        'rayleigh'                         Rayleigh
+        'weibull' or 'wbl'                 Weibull
+ 
+    probplot(Y,CENS,FREQ) or probplot('DISTNAME',Y,CENS,FREQ) requires
+    a vector Y.  CENS is a vector of the same size as Y and contains
+    1 for observations that are right-censored and 0 for observations
+    that are observed exactly.  FREQ is a vector of the same size as Y,
+    containing integer frequencies for the corresponding elements in Y.
+ 
+    probplot(AX,Y) takes a handle AX to an existing probability plot, and
+    adds additional lines for the samples in Y.  AX is a handle for a
+    set of axes.
+ 
+    Use the data cursor to read precise values from the plot, as well as
+    observation numbers from the points when CENS and FREQ are left
+    unspecified.
+ 
+    probplot(...,'noref') omits the reference line.
+ 
+    probplot(AX,PD) takes a probability distribution object PD, and adds a
+    fitted line to the axes specified by AX to represent the probability
+    distribution specified by PD.
+ 
+    probplot(AX,FUN,PARAMS) takes a function FUN and a set of parameters
+    PARAMS, and adds a fitted line to the axes specified by AX.  FUN is
+    a function to compute a cdf function, and is specified with @
+    (such as @wblcdf).  PARAMS is the set of parameters required to
+    evaluate FUN, and is specified as a cell array or vector.  The
+    function must accept a vector of X values as its first argument,
+    then the optional parameters, and must return a vector of cdf
+    values evaluated at X.
+ 
+    H=probplot(...) returns handles to the plotted lines.
+ 
+    The y axis scale is based on the selected probability distribution. The
+    x axis has a log scale for the Weibull and lognormal distributions, and
+    a linear scale for the others.  The Ith sorted value from a sample of
+    size N is plotted against the midpoint in the jump of the empirical CDF
+    on the y axis.  With uncensored data, that midpoint is (I-0.5)/N.  With
+    censored data, the y value is more complicated to compute.
+ 
+    Example:  Generate exponential data.  A normal probability plot does
+              not show a good fit.  A Weibull probability plot looks
+              better, because the exponential distribution is part of the
+              Weibull family of distributions.
+        y = exprnd(5,200,1);
+        probplot(y);                      % normal probability plot
+        figure; probplot('weibull',y);    % Weibull probability plot
+ 
+    See also normplot, wblplot, ecdf.
+
+    Reference page for probplot
+%}
+%
+clear,clc,close all,format compact
+syms x a
+n=input('Enter degree of derivative.')
+r0=input('Enter a function. Variables must be defined in terms of x.');
+position=simplify(r0)
+velocity=simplify(diff(r0,x))
+speed=simplify(norm(velocity))
+accel=simplify(diff(velocity,x))
+nth=simplify(diff(r0,x,n))
+
+disp('position')
+pretty(position)
+disp('velocity')
+pretty(velocity)
+disp('speed')
+pretty(speed)
+disp('acceleration')
+pretty(accel)
+pretty(simplify(nth))
+
+%}
+syms W L H x
+T = W.*L.*(H.^2+x.^2).^(1/2).*(H.^(-1).*x.^(-1));
+A={'Attempt_1'};
+% Continue as necessary with ",'Attempt_2','Attempt_3','Attempt_4','Attempt_5','Attempt_6'"
+B=cellstr('Tension forces')
+table(T,'rownames',B,'variablenames',A)
+
+%% Control and feedback
+% Proportional integral derivative controller
+Sact = Gain.*(Starget-Sact)
+
+%{
+m=20
+Gp=20
+c=0.05
+x0 = 65; 
+x(1:2) = 0;  % initial values
+%   Explanation of function syntax
+%   unlike LABVIEW, matlab is not zero indexed. As such special precautinon
+%   must be taken to account for this, such as mapping zero as one.
+dt = 0.1; % seconds
+t = 0:dt:40;  % seconds
+nt = length(t);
+for tt = 2:nt-1
+        x(tt+1) = 2*x(tt) -x(tt-1) - 3*(c*dt)/m*x(tt).^2*(x(tt)-x(tt-1)) + (Gp*dt^2)/m*(x0-x(tt));
+end
+%   Structuring of parameter value S.T. x(t) can access the past three
+%   values of t ([t(t-2), t(t-1), t(curr) ])
+%        x(tt+1)...              %x@"tcurr" is equal to
+%        = 2*x(tt)...            %scales x@"t-1" by 2
+%        -x(tt-1)...             %while subtracting by x@"t-2" 
+%   This illustrates the fact that the function is trinary (accepts three variables)
+%}
+%A Note About tt notation:
+%it is advised to substitute tt for t as the parameter considering the
+%indexing issue mendtioned above. Is there a way to do without it and stick 
+%to a single parameter for clarity's sake? 
+%
+%Sure, but not without screwing with the x axis of the plot or turning t 
+%into a two row column. Don't fuck with it, addressing that mess is harder
+%than it sounds.
+
+figure
+plot(t,x)
+xlabel('t (sec)')
+ylabel('speed (mph)')
+
+
+%}
+% PID 
+% Differential  
+% Sact.*(t+1) = Gain.*(Starget-Sact.*(t))
+% Transiential
+
+%% |Object Oriented Programming| 
+%{
+
+%}
+
+%% Defining classes
+%{
+classdef
+    %NAME Brief Description
+    % Elaborate Description 
+    
+    properties
+    %property descriptor 
+    property_var
+        repeat ad infinitum
+    end
+    methods
+        % Methods go here, Define several functions to complete a task.
+        % Classes must be created, run, and destroyed.
+    end 
+end
+** note: File name and class title must match.
+%}
+%% Transient control
+%{
+clear, clc, close all,format compact
+m = 20;
+Gp = 20;
+c = 5;         % control constant
+ 
+x0 = 65;
+x(1:2) = 0;     % initial values 
+dt = 0.1;       % seconds
+t = 0:dt:40;    % seconds
+nt = length(t);
+for tt = 2:nt-1 % use the iterator as the index and start 
+    x(tt+1) = 2*x(tt)-x(tt-1) - (c*dt)/m*(x(tt)-x(tt-1)) + 	(Gp*dt^2)/m*(x0-x(tt));
+end
+ 
+figure
+plot(t,x)
+xlabel('t (sec)')
+ylabel('speed (mph)')
+
+%% PID Code Example for thermostat
+Kp = 0.2;
+Ki = 0.5;
+Kd = 0.02;
+ 
+T0 = 70;  % degrees, Fahrenheit for the goal T
+T(1:3) = 50; % degrees F, current T
+ 
+dt = 0.1; % min
+t = 0:dt:5; % min
+nt = length(t);
+ 
+% initial error, for first two time steps
+e(1:3) = T0-T;
+ 
+for tt = 3:nt-1
+    % calculate temperature for next time step
+    T(tt+1) = T(tt) + Ki*e(tt)*dt 
+	+ Kp*(e(tt)-e(tt-1))
+	+ Kd/dt*(e(tt)-2*e(tt-1)+e(tt-2));
+    
+    % update error
+    e(tt+1) = T0 - T(tt+1);
+end
+ 
+figure
+plot(t,T)
+xlabel('t (min)')
+ylabel('T (degrees F)')
+%}
+%% Transient control
+%{
+clear, clc, close all,format compact
+m = 20;
+Gp = 20;
+c = 5;         % control constant
+ 
+x0 = 65;
+x(1:2) = 0;     % initial values 
+dt = 0.1;       % seconds
+t = 0:dt:40;    % seconds
+nt = length(t);
+for tt = 2:nt-1 % use the iterator as the index and start 
+    x(tt+1) = 2*x(tt)-x(tt-1) - (c*dt)/m*(x(tt)-x(tt-1)) + 	(Gp*dt^2)/m*(x0-x(tt));
+end
+ 
+figure
+plot(t,x)
+xlabel('t (sec)')
+ylabel('speed (mph)')
+%}
+%% PID Code Example for thermostat
+%{
+Kp = 0.2;
+Ki = 0.5;
+Kd = 0.02;
+ 
+T0 = 70;  % degrees, Fahrenheit for the goal T
+T(1:3) = 50; % degrees F, current T
+ 
+dt = 0.1; % min
+t = 0:dt:5; % min
+nt = length(t);
+ 
+% initial error, for first two time steps
+e(1:3) = T0-T;
+ 
+for tt = 3:nt-1
+    % calculate temperature for next time step
+    T(tt+1) = T(tt) + Ki*e(tt)*dt 
+	+ Kp*(e(tt)-e(tt-1))
+	+ Kd/dt*(e(tt)-2*e(tt-1)+e(tt-2));
+    
+    % update error
+    e(tt+1) = T0 - T(tt+1);
+end
+ 
+figure
+plot(t,T)
+xlabel('t (min)')
+ylabel('T (degrees F)')
+%}
+%% Indexing tips and tricks
+%{
+a=[1:1:4;5:1:8;9:1:12]
+b=a'
+b(:).'
+ind=7
+[row,col]=ind2sub(size(A),ind)
+indb=sub2ind(size(A),row,col)
+b(1:4)
+%}
+%% Designing User Interfaces ( )
+%{
+help guide
+
+
+  Graphical user interface design environment
+  MATLAB Version 8.6 (R2015b) 13-Aug-2015 
+ 
+  guide functions.
+    guide       	- Open the GUI Design Environment.
+
+
+    guide is both a directory and a function.
+
+    guide  Open the GUI Design Environment.
+    guide initiates the GUI Design Environment(guide) tools that allow GUIs
+    to be created or edited interactively from FIG-files or handle(s) to
+    figure.     
+ 
+    Calling guide by itself will open the guide Quick Start Dialog where
+    you can choose to open a previously created GUI or create a new one
+    from one of the provided GUI templates. 
+    
+    guide(filename) opens the FIG-file named 'filename' for editing if it
+    is on the MATLAB path. guide(fullpath) opens the FIG-file at 'fullpath'
+    even if it is not on the MATLAB path. 
+ 
+    guide(HandleList) opens the content of each of the figures in
+    HandleList in a separate copy of the guide design environment.  
+%}

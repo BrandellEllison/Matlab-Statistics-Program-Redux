@@ -1,0 +1,92 @@
+clear,clc,close all,format bank
+x=double.empty
+[fnx,pn,fi]=uigetfile({'*.mat';'*.xlsx';'*.txt';'*.*'},'Select list','Normal.txt');
+if isstruct(fnx) == 1  ; 
+    fnx=load(fullfile(pn,fnx));
+    if isfield(fnx,'x')
+        x = fnx.x;
+    end
+    if isfield(fnx,'y')
+        fnx = fnx.y
+    end
+    fnx=cell2mat(struct2cell(fnx));
+elseif fi == 2; %is an excel file
+    fnx=xlsread(fnx,-1);
+else
+    fnx=load(fullfile(pn,fnx))
+end
+i=1:min(size(fnx));
+[row,column] = size(fnx);
+prompt = menu(sprintf('Correct array dimensions are \n\t\t %1.0f by %1.0f \n ',row,column),'yes','no');
+% Transpose prompt, formats to column vector for userstat function
+if prompt == 2;
+    fnx = fnx';
+end   
+C=userstat(fnx);
+if isempty(x) == true
+
+    x=linspace(C(8,1),C(9,1),C(10,1));
+end
+% Plotting operations
+while i
+figure
+Histo=histogram(fnx(i))
+PDF = normpdf(x, C(1,i), C(6,i));
+CDF = normcdf(x, C(1,i), C(6,i));
+figure
+subplot(1,2,i)
+plot(x,PDF(i))
+xlabel('Criteria (Units)')
+ylabel('Probability')
+%axis([min(x),max(x),min(PDF),max(PDF)])
+subplot(1,2,i+1)
+ylabel('Cumulative Probability (Decimal)')
+plot(x,CDF(i))
+%axis([min(x),max(x),min(CDF),1])
+end
+figure
+degree = 1;
+% Normal linear regression
+a2=polyfit(x,fnx,degree);
+B2=a2(1);
+A2=a2(2);
+Kfit2= polyval(a2,x);
+e2=(Kfit2-fnx);
+MSE2=mean(e2.^2);
+subplot(1,2,1)
+plot(x,fnx,'or',x,Kfit2,'k')
+fprintf('The MSE of each regression is listed respectively:\n')
+disp(MSE2.')
+% log-transformed linear regression
+lfnx=log(fnx);
+a=polyfit(x,lfnx,degree);
+B=a(1);
+A=exp(a(2));
+Kfit=A*exp(B*x);
+e=(Kfit-fnx);
+MSE=mean(e.^2);
+subplot(1,2,2)
+plot(log(x),lfnx,'or',x,Kfit,'k')
+fprintf('The MSE of each log_tf_norm regression is listed respectively:\n')
+disp(MSE.')
+% Comparison
+comparison= MSE2 > MSE
+fprintf('Order\tMSE\n');
+%
+i=0;
+if comparison == 1
+    while comparison == 1
+        i=i+1
+        attempt(i)=i
+        a2=polyfit(x,fnx,i);
+        B2=a2(1);
+        A2=a2(2);
+        Kfit2 = polyval(a2,x);
+        e2 = (Kfit2-y);
+        MSE2 = mean(e2.^2);
+        comparison = MSE2 > MSE;
+        Meanerrsqr(1,i)=MSE2';
+    end
+table(attempt',Meanerrsqr','VariableNames',{'Order','MSE'})
+fprintf('Polynomial regression of order %1.0f has a better \n MSE than log transformed linear regression.\n\n',i)    
+end
