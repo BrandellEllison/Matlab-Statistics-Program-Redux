@@ -7,41 +7,40 @@ Original criteria listed below.
 
 Paralegal Disclaimer:
 
-I recognize that the assignment listed below--as well as any tangentially related files included in this repository--are the intellectual property of Texas A&M University, and as such may not be redistributed without permission from  the TAMU Engineering Department. 
-At no point and time will the code developed here be used for financial gain, so neither Texas A&M nor Mathworks have any basis for any decision to pursue legal action.
+    I recognize that the assignment listed below--as well as any tangentially related files included in this repository--are the intellectual property of Texas A&M University, and as such may not be redistributed without permission from  the TAMU Engineering Department. 
+    At no point and time will the code developed here be used for financial gain.
 
+ ASSIGNMENT CRITERIA:
 
-%% ASSIGNMENT CRITERIA:
-%{
 
 ||| %% Tasks:
 
-||| Open or create a user defined file 
+    % Open or create a user defined file 
 
-||| Edit file into a usable state
+    % Edit file into a usable state
 
-% Save and close edited file
+    % Save and close edited file
 
-% Load file
+    % Load file
 
-% Open to main menu
+    % Open to main menu
 
-% Process data and generate a statistical report
+    % Process data and generate a statistical report
 
-% Publish results in a pdf format 
+    % Publish results in a pdf format 
 
-% Close
+    % Close
 
 Include the following: 
 
-A short report describing the operation of your code (i.e. a user manual, similar to MATLAB’s
-own help documentation) and how you went about testing that the code works properly and
-provides correct results. The testing section of your report should state what tests the code has
-to pass, argue that the tests adequately cover the specifications for the program, and
-demonstrate that the code passes the tests. This report should be typed in 12pt Times New
-Roman with 1-inch margins and double spaced lines. The report should not be more than 5
-pages in length. 
-
+    A short report describing the operation of your code (i.e. a user manual, similar to MATLAB’s
+    own help documentation) and how you went about testing that the code works properly and
+    provides correct results. The testing section of your report should state what tests the code has
+    to pass, argue that the tests adequately cover the specifications for the program, and
+    demonstrate that the code passes the tests. This report should be typed in 12pt Times New
+    Roman with 1-inch margins and double spaced lines. The report should not be more than 5
+    pages in length. 
+    
 %% Specifications
 
 The program should be menu-driven. (USING guide)
